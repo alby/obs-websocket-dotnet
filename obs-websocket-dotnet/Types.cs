@@ -100,6 +100,14 @@ namespace OBSWebsocketDotNet
     public delegate void OutputStateCallback(OBSWebsocket sender, OutputState type);
 
     /// <summary>
+    /// Called by <see cref="OBSWebsocket.StreamingStatistics"/>, <see cref="OBSWebsocket.RecordingStatistics"/>
+    /// or <see cref="OBSWebsocket.ReplayBufferStatistics"/> 
+    /// </summary>
+    /// <param name="sender"><see cref="OBSWebsocket"/> instance</param>
+    /// <param name="statistics">Statistics data for the output</param>
+    public delegate void OutputStatisticsCallback(OBSWebsocket sender, OutputStatistics statistics);
+
+    /// <summary>
     /// Called by <see cref="OBSWebsocket.StreamStatus"/>
     /// </summary>
     /// <param name="sender"><see cref="OBSWebsocket"/> instance</param>
@@ -269,6 +277,70 @@ namespace OBSWebsocketDotNet
         {
             PluginVersion = (string)data["obs-websocket-version"];
             OBSStudioVersion = (string)data["obs-studio-version"];
+        }
+    }
+
+    /// <summary>
+    /// Detailed status data for a single output type
+    /// </summary>
+    public struct OutputStatistics
+    {
+        /// <summary>
+        /// True if output is started and running, false otherwise
+        /// </summary>
+        public readonly bool Running;
+
+        /// <summary>
+        /// output bitrate in bytes per second
+        /// </summary>
+        public readonly int BytesPerSec;
+
+        /// <summary>
+        /// output bitrate in kilobits per second
+        /// </summary>
+        public readonly int KbitsPerSec;
+
+        /// <summary>
+        /// RTMP output strain
+        /// </summary>
+        public readonly float Strain;
+
+        /// <summary>
+        /// Total time since output start
+        /// </summary>
+        public readonly int TotalOutputTime;
+
+        /// <summary>
+        /// Number of frames sent since output started
+        /// </summary>
+        public readonly int TotalFrames;
+
+        /// <summary>
+        /// Overall number of frames dropped since output started
+        /// </summary>
+        public readonly int DroppedFrames;
+
+        /// <summary>
+        /// Current framerate in Frames Per Second
+        /// </summary>
+        public readonly float FPS;
+
+        /// <summary>
+        /// Builds the object from the JSON event body
+        /// </summary>
+        /// <param name="data">JSON event body as a <see cref="JObject"/></param>
+        public OutputStatistics(JObject data)
+        {
+            Running = (bool)data["output-running"];
+
+            BytesPerSec = (int)data["bytes-per-sec"];
+            KbitsPerSec = (int)data["kbits-per-sec"];
+            Strain = (float)data["strain"];
+            TotalOutputTime = (int)data["total-output-time"];
+
+            TotalFrames = (int)data["num-total-frames"];
+            DroppedFrames = (int)data["num-dropped-frames"];
+            FPS = (float)data["fps"];
         }
     }
 

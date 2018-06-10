@@ -144,6 +144,40 @@ namespace OBSWebsocketDotNet.Tests
         }
 
         [TestMethod]
+        public void OBSOutputStatistics_BuildFromJSON()
+        {
+            int bytesPerSec = 294400;
+            int kbitsPerSec = 2300;
+            float strain = 0.5f;
+            int outputTime = 120;
+            int totalFrames = 2000;
+            int droppedFrames = 12;
+            float fps = 29.97f;
+
+            var data = new JObject();
+            data.Add("output-running", true);
+            data.Add("bytes-per-sec", bytesPerSec);
+            data.Add("kbits-per-sec", kbitsPerSec);
+            data.Add("strain", strain);
+            data.Add("total-output-time", outputTime);
+            data.Add("num-total-frames", totalFrames);
+            data.Add("num-dropped-frames", droppedFrames);
+            data.Add("fps", fps);
+
+            var outputStatus = new OutputStatistics(data);
+
+            Assert.IsTrue(outputStatus.Running);
+            Assert.AreEqual(bytesPerSec, outputStatus.BytesPerSec);
+            Assert.AreEqual(kbitsPerSec, outputStatus.KbitsPerSec);
+            Assert.AreEqual(strain, outputStatus.Strain);
+            Assert.AreEqual(outputTime, outputStatus.TotalOutputTime);
+            Assert.AreEqual(totalFrames, outputStatus.TotalFrames);
+            Assert.AreEqual(droppedFrames, outputStatus.DroppedFrames);
+            Assert.AreEqual(fps, outputStatus.FPS);
+        }
+
+
+        [TestMethod]
         public void OBSOutputStatus_BuildFromJSON()
         {
             var data = new JObject();
