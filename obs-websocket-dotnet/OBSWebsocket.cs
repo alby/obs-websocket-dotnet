@@ -174,6 +174,22 @@ namespace OBSWebsocketDotNet
         private TimeSpan _pWSTimeout;
 
         /// <summary>
+        /// Whether or not the WebSocket log output is disabled.
+        /// </summary>
+        public bool WSDisableLog
+        {
+            get
+            {
+                return _wsDisableLog;
+            }
+            set
+            {
+                _wsDisableLog = value;
+            }
+
+        }
+        private bool _wsDisableLog = false;
+        /// <summary>
         /// Current connection state
         /// </summary>
         public bool IsConnected
@@ -211,6 +227,8 @@ namespace OBSWebsocketDotNet
 
             WSConnection = new WebSocket(url);
             WSConnection.WaitTime = _pWSTimeout;
+            if (WSDisableLog)
+                WSConnection.Log.Output = (_, __) => { };
             WSConnection.OnMessage += WebsocketMessageHandler;
             WSConnection.OnClose += (s, e) =>
             {
