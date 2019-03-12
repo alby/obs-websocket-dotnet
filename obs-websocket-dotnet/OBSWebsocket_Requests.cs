@@ -705,5 +705,29 @@ namespace OBSWebsocketDotNet
 
             SendRequest("SetBrowserSourceProperties", request);
         }
+
+        /// <summary>
+        /// Set the recording file's format.
+        /// </summary>
+        /// <param name="fmt"></param>
+        public void SetFilenameFormatting(string fmt)
+        {
+            var request = new JObject();
+            request.Add("filename-formatting", fmt);
+            SendRequest("SetFilenameFormatting", request);
+        }
+
+        /// <summary>
+        /// Gets the recording file's format.
+        /// </summary>
+        /// <returns></returns>
+        public string GetFilenameFormatting()
+        {
+            var response = SendRequest("GetFilenameFormatting");
+
+            string fileFormat = "";
+            fileFormat = (string) response["filename-formatting"];
+            return fileFormat;
+        }
     }
 }
