@@ -487,7 +487,7 @@ namespace OBSWebsocketDotNet
                 var withTransition = new JObject();
 
                 if (transitionDuration > -1)
-                    withTransition.Add("duration");
+                    withTransition.Add("duration", transitionDuration);
 
                 if (transitionName != null)
                     withTransition.Add("name", transitionName);
