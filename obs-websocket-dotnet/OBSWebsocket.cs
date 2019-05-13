@@ -121,6 +121,21 @@ namespace OBSWebsocketDotNet
         public event OutputStateCallback ReplayBufferStateChanged;
 
         /// <summary>
+        /// Triggered every 2 seconds while recording is active
+        /// </summary>
+        public event OutputStatisticsCallback StreamingStatistics;
+
+        /// <summary>
+        /// Triggered every 2 seconds while recording is active
+        /// </summary>
+        public event OutputStatisticsCallback RecordingStatistics;
+
+        /// <summary>
+        /// Triggered every 2 seconds while the replay buffer is active
+        /// </summary>
+        public event OutputStatisticsCallback ReplayBufferStatistics;
+
+        /// <summary>
         /// Triggered every 2 seconds while streaming is active
         /// </summary>
         public event StreamStatusCallback StreamStatus;
@@ -525,6 +540,27 @@ namespace OBSWebsocketDotNet
                     {
                         status = new StreamStatus(body);
                         StreamStatus(this, status);
+                    }
+                    break;
+
+                case "StreamingStatistics":
+                    if (StreamingStatistics != null)
+                    {
+                        StreamingStatistics(this, new OutputStatistics(body));
+                    }
+                    break;
+
+                case "RecordingStatistics":
+                    if (RecordingStatistics != null)
+                    {
+                        RecordingStatistics(this, new OutputStatistics(body));
+                    }
+                    break;
+
+                case "ReplayBufferStatistics":
+                    if (ReplayBufferStatistics != null)
+                    {
+                        ReplayBufferStatistics(this, new OutputStatistics(body));
                     }
                     break;
 
