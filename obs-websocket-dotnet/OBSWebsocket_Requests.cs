@@ -244,6 +244,35 @@ namespace OBSWebsocketDotNet
             SendRequest("SetSceneItemPosition", requestFields);
         }
 
+        //ALBY from v4.3.0 - implement and check!
+        /// <summary>
+        /// Set the scale and rotation of the specified scene item
+        /// </summary>
+        /// <param name="itemName">Name of the scene item which transform will be changed</param>
+        /// <param name="positionx">The new x position of the source</param>
+        /// <param name="positiony">The new y position of the source</param>
+        /// <param name="positionalignment">The new alignment of the source</param>
+        /// <param name="rotation">The new clockwise rotation of the item in degrees</param>
+        /// <param name="xScale">Horizontal scale factor</param>
+        /// <param name="yScale">Vertical scale factor</param>
+        /// <param name="sceneName">(optional) name of the scene the item belongs to</param>
+        public void SetSceneItemProperties(string itemName, int positionx, int positiony, int positionalignment, float rotation = 0, float xScale = 1, float yScale = 1, string sceneName = null)
+        {
+            var requestFields = new JObject();
+            requestFields.Add("item", itemName);
+            requestFields.Add("position.x", positionx);
+            requestFields.Add("position.y", positiony);
+            requestFields.Add("position.alignment", positionalignment);
+            requestFields.Add("rotation", rotation);
+            requestFields.Add("scale.x", xScale);
+            requestFields.Add("scale.y", yScale);
+
+            if (sceneName != null)
+                requestFields.Add("scene-name", sceneName);
+
+            SendRequest("SetSceneItemTransform", requestFields);
+        }
+
         /// <summary>
         /// Set the scale and rotation of the specified scene item
         /// </summary>
@@ -728,6 +757,18 @@ namespace OBSWebsocketDotNet
             string fileFormat = "";
             fileFormat = (string) response["filename-formatting"];
             return fileFormat;
+        }
+
+        ///Added in v4.3.0
+        /// <summary>
+        /// Enable/disable sending of the Heartbeat event
+        /// </summary>
+        /// <param name="setHeartbeat">Starts/Stops emitting heartbeat messages</param>
+        public void SetHeartbeat(bool setHeartbeat)
+        {
+            var requestFields = new JObject();
+            requestFields.Add("enable", setHeartbeat);
+            SendRequest("SetHeartbeat", requestFields);
         }
     }
 }

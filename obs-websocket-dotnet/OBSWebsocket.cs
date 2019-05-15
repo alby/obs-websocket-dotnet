@@ -141,6 +141,11 @@ namespace OBSWebsocketDotNet
         public event StreamStatusCallback StreamStatus;
 
         /// <summary>
+        /// Triggered every 2 seconds while heartbeat is active
+        /// </summary>
+        public event HeartbeatCallback Heartbeat;
+
+        /// <summary>
         /// Triggered when the preview scene selection changes (Studio Mode only)
         /// </summary>
         public event SceneChangeCallback PreviewSceneChanged;
@@ -233,13 +238,15 @@ namespace OBSWebsocketDotNet
         /// <summary>
         /// Connect this instance to the specified URL, and authenticate (if needed) with the specified password
         /// </summary>
-        /// <param name="url">Server URL in standard URL format</param>
+        /// <param name="server">Server URL in standard URL format</param>
+        /// <param name="port">Server URL in standard URL format</param>
         /// <param name="password">Server password</param>
-        public void Connect(string url, string password)
+        public void Connect(string server, string port, string password)
         {
             if (WSConnection != null && WSConnection.IsAlive)
                 Disconnect();
 
+            string url = "ws://" + server + ":" + port;
             WSConnection = new WebSocket(url);
             WSConnection.WaitTime = _pWSTimeout;
             if (WSDisableLog)
@@ -422,6 +429,7 @@ namespace OBSWebsocketDotNet
         protected void ProcessEventType(string eventType, JObject body)
         {
             StreamStatus status;
+            Heartbeat heartstat;
 
             switch (eventType)
             {
@@ -540,6 +548,14 @@ namespace OBSWebsocketDotNet
                     {
                         status = new StreamStatus(body);
                         StreamStatus(this, status);
+                    }
+                    break;
+
+                case "Heartbeat":
+                    if (Heartbeat != null)
+                    {
+                        heartstat = new Heartbeat(body);
+                        Heartbeat(this, heartstat);
                     }
                     break;
 

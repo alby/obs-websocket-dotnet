@@ -115,6 +115,13 @@ namespace OBSWebsocketDotNet
     public delegate void StreamStatusCallback(OBSWebsocket sender, StreamStatus status);
 
     /// <summary>
+    /// Called by <see cref="OBSWebsocket.Heartbeat"/>
+    /// </summary>
+    /// <param name="sender"><see cref="OBSWebsocket"/> instance</param>
+    /// <param name="heartbeat">Stream status data</param>
+    public delegate void HeartbeatCallback(OBSWebsocket sender, Heartbeat heartbeat);
+
+    /// <summary>
     /// Called by <see cref="OBSWebsocket.StudioModeSwitched"/>
     /// </summary>
     /// <param name="sender"><see cref="OBSWebsocket"/> instance</param>
@@ -169,6 +176,11 @@ namespace OBSWebsocketDotNet
         public string InternalType;
 
         /// <summary>
+        /// Whether or not this Scene Item is set to "visible"
+        /// </summary>
+        public bool Render;
+
+        /// <summary>
         /// Source audio volume
         /// </summary>
         public float AudioVolume;
@@ -211,6 +223,7 @@ namespace OBSWebsocketDotNet
         {
             SourceName = (string)data["name"];
             InternalType = (string)data["type"];
+            Render = (bool)data["render"];
 
             AudioVolume = (float)data["volume"];
             XPos = (float)data["x"];
@@ -415,6 +428,101 @@ namespace OBSWebsocketDotNet
     }
 
     /// <summary>
+    /// Emitted every 2 seconds after enabling it by calling SetHeartbeat
+    /// </summary>
+    public struct Heartbeat
+    {
+        /// <summary>
+        /// Toggles between every JSON message as an "I am alive" indicator
+        /// </summary>
+        public readonly bool HPulse;
+
+        /// <summary>
+        /// Current active profile
+        /// </summary>
+        public readonly string HCurrentProfile;
+
+        /// <summary>
+        /// Current active scene
+        /// </summary>
+        public readonly string HCurrentScene;
+
+        /// <summary>
+        /// Current streaming state
+        /// </summary>
+        public readonly bool HStreaming;
+
+        /// <summary>
+        /// Total time (in seconds) since streaming start
+        /// </summary>
+        public readonly int HTotalStreamTime;
+
+        /// <summary>
+        /// Total bytes sent since the stream started
+        /// </summary>
+        public readonly int HTotalStreamBytes;
+
+        /// <summary>
+        /// Total frames streamed since the stream started
+        /// </summary>
+        public readonly int HTotalStreamFrames;
+
+        /// <summary>
+        /// Current recording state
+        /// </summary>
+        public readonly bool HRecording;
+
+        /// <summary>
+        /// Total time (in seconds) since recording start
+        /// </summary>
+        public readonly int HTotalRecTime;
+
+        /// <summary>
+        /// Total bytes sent since the recording started
+        /// </summary>
+        public readonly int HTotalRecBytes;
+
+        /// <summary>
+        /// Total frames streamed since the recording started
+        /// </summary>
+        public readonly int HTotalRecFrames;
+
+        /// <summary>
+        /// Builds the object from the JSON event body
+        /// </summary>
+        /// <param name="data">JSON event body as a <see cref="JObject"/></param>
+        public Heartbeat(JObject data)
+        {
+            HPulse = (bool)data["pulse"];
+
+            HCurrentProfile = (string)data["current-profile"];
+            HCurrentScene = (string)data["current-scene"];
+
+            HStreaming = (bool)data["streaming"];
+            HTotalStreamTime = 0;
+            HTotalStreamBytes = 0;
+            HTotalStreamFrames = 0;
+            if (HStreaming)
+            {
+                HTotalStreamTime = (int)data["total-stream-time"];
+                HTotalStreamBytes = (int)data["total-stream-bytes"];
+                HTotalStreamFrames = (int)data["total-stream-frames"];
+            }
+
+            HRecording = (bool)data["recording"];
+            HTotalRecTime = 0;
+            HTotalRecBytes = 0;
+            HTotalRecFrames = 0;
+            if (HRecording)
+            {
+                HTotalRecTime = (int)data["total-record-time"];
+                HTotalRecBytes = (int)data["total-record-bytes"];
+                HTotalRecFrames = (int)data["total-record-frames"];
+            }
+        }
+    }
+
+    /// <summary>
     /// Status of streaming output and recording output
     /// </summary>
     public struct OutputStatus
@@ -430,6 +538,16 @@ namespace OBSWebsocketDotNet
         public readonly bool IsRecording;
 
         /// <summary>
+        /// Time elapsed between now and stream start
+        /// </summary>
+        public readonly string StreamTimecode;
+
+        /// <summary>
+        /// Time elapsed between now and recording start
+        /// </summary>
+        public readonly string RecTimecode;
+
+        /// <summary>
         /// Builds the object from the JSON response body
         /// </summary>
         /// <param name="data">JSON response body as a <see cref="JObject"/></param>
@@ -437,6 +555,9 @@ namespace OBSWebsocketDotNet
         {
             IsStreaming = (bool)data["streaming"];
             IsRecording = (bool)data["recording"];
+
+            StreamTimecode = (string)data["stream-timecode"];
+            RecTimecode = (string)data["rec-timecode"];
         }
     }
 
